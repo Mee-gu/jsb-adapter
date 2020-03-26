@@ -555,11 +555,11 @@ let _tmpGetSetDesc = {
 function defineProperty(proto)
 {
     let keys = Object.keys(proto);
-    console.log("keys = ", keys);
     keys.forEach((item, index) => {
         let oldProperty = item;
-        console.log('oldProperty:', oldProperty);
         if(oldProperty.indexOf('__') === 0){
+            console.log("keys = ", keys);
+
             let newProperty = oldProperty.substring(2);
             let cachedProperty = oldProperty + '_cached';
             console.log("cachedProperty = ", cachedProperty);
