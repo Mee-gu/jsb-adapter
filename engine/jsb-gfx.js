@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let _tmpGetSetDesc = {
-    get: undefined,
-    set: undefined,
-    enumerable: true,
-    configurable: true
-};
+// let _tmpGetSetDesc = {
+//     get: undefined,
+//     set: undefined,
+//     enumerable: true,
+//     configurable: true
+// };
 
 // Converters for converting js objects to jsb struct objects
 let _converters = {
@@ -546,14 +546,21 @@ replace(windowProto, {
     initialize: replaceFunction('_initialize', _converters.GFXWindowInfo),
 });
 
+let _tmpGetSetDesc = {
+    get: undefined,
+    set: undefined,
+    enumerable: true,
+    configurable: true
+};
 function defineProperty(proto)
 {
     let keys = Object.keys(proto);
     console.log("keys = ", keys);
     keys.forEach((item, index) => {
-        let oldProperty = item.toString();
-        console.log('defineProperty:', oldProperty);
-        if(oldProperty.indexOf('__') != -1){
+        let oldProperty = item;
+        console.log('oldProperty:', oldProperty);
+        if(oldProperty.indexOf('__') === 0){
+            let newProperty = oldProperty.substring(2);
             let cachedProperty = oldProperty + '_cached';
             console.log("cachedProperty = ", cachedProperty);
             _tmpGetSetDesc.get = function(){
@@ -566,25 +573,25 @@ function defineProperty(proto)
             };
             _tmpGetSetDesc.set = function(newProperty) {
                 this[cachedProperty] = newProperty;
-                this.oldProperty = newProperty;
+                this[oldProperty] = newProperty;
             };
-            Object.defineProperty(this, oldProperty, _tmpGetSetDesc);
+            console.log(JSON.stringify(_tmpGetSetDesc));
+            console.log('newProperty = ', newProperty);
+            Object.defineProperty(proto, newProperty, _tmpGetSetDesc);
         }
     });
 }
 
-let blendState = gfx.GFXBlendState.prototype;
-defineProperty(blendState);
-// _tmpGetSetDesc.get = function(){
-//     if(this.__targets_cache){
-//         return this.__targets_cache;
-//     }
-//     // this.__targets_cache = getBlendStateTargetsOld.get.call(this);
-//     this.__targets_cache = this.__targets;
-//     return this.__targets_cache;
-// };
-// _tmpGetSetDesc.set = function(targets) {
-//     this.__targets_cache = targets;
-//     this.__targets = targets;
-// };
-// Object.defineProperty(blendState, "targets", _tmpGetSetDesc);
+let gfxClass = Object.keys(gfx);
+console.log('gfxClass');
+gfxClass.forEach((item, index) => {
+    let gfxFunc = gfx[item];
+    if(gfxFunc === undefined)
+        return;
+    let gfxFuncName = gfxFunc.name || gfxFunc.toString().match(/function\s*([^(]*)\(/)[1];
+    if(gfxFuncName.indexOf('GFX') !== 0)
+        return;
+    console.log(gfxFuncName);
+    defineProperty(gfxFunc.prototype);
+});
+
