@@ -49,6 +49,14 @@ class ForwardPipeline extends nr.ForwardPipeline {
   }
 }
 
+Object.assign(ForwardPipeline.prototype, {
+  shadowMap: new cc.Shadow(),
+  ambient: new cc.Ambient(),
+  skybox: new cc.Skybox(),
+  fog: new cc.Fog(),
+  planarShadows: new cc.PlanarShadows(),
+})
+
 class ForwardFlow extends nr.ForwardFlow {
   constructor() {
     super();
@@ -206,6 +214,18 @@ Object.assign(RootProto, {
       flows: info.flows
     };
     view.initialize(new nr.RenderViewInfo(jsbInfo));
+    Object.defineProperty(view, 'window', {
+      get() {
+        return view.getWindow();
+      },
+
+      set(win) {
+        view.setWindow(win.handle);
+      },
+
+      enumerable: true,
+      configurable: true
+    });
     return view;
   },
 
